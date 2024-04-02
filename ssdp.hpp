@@ -23,7 +23,7 @@ auto search_target_uuid(const char * const uuid) -> std::string {
 	return st;
 }
 
-int discover(std::string search_target) {
+int discover(std::string search_target, void (&callback)(std::string)) {
     // Create a UDP socket
     int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
     if (sockfd < 0) {
@@ -75,6 +75,8 @@ int discover(std::string search_target) {
         }
         buffer.resize(bytes_received);
         buffer.push_back('\0'); // Add null terminator to treat buffer as C-string
+	std::string response(buffer.data(), bytes_received);
+	callback(std::move(response));
         std::cout << "Received response: " << buffer.data() << std::endl;
     }
 
