@@ -23,7 +23,7 @@ auto search_target_uuid(const char * const uuid) -> std::string {
 	return st;
 }
 
-int discover(std::string search_target, void (&callback)(std::string)) {
+auto discover(std::string search_target, void (&callback)(std::string)) -> int {
     // Create a UDP socket
     int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
     if (sockfd < 0) {
@@ -65,7 +65,7 @@ int discover(std::string search_target, void (&callback)(std::string)) {
     // Receive responses
     std::vector<char> buffer(1024);
     while (true) {
-        int bytes_received = recv(sockfd, buffer.data(), buffer.size(), 0);
+        ssize_t bytes_received = recv(sockfd, buffer.data(), buffer.size(), 0);
         if (bytes_received < 0) {
             std::cerr << "Error receiving response" << std::endl;
             break;
