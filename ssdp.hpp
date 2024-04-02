@@ -48,11 +48,12 @@ int discover(std::string search_target, void (&callback)(std::string)) {
 
     std::string search_msg =
 	"M-SEARCH * HTTP/1.1\r\n"
-	"Host:239.255.255.250:1900\r\n"
-	"Man:\"ssdp:discover\"\r\n";
+	"Host: 239.255.255.250:1900\r\n"
+	"Man: \"ssdp:discover\"\r\n"
+	"MX: 2\r\n"
+	"ST: ";
     search_msg += search_target;
-    search_msg += "MX:2\r\n\r\n";
-
+    search_msg += "\r\n\r\n";
 
     // Send SSDP search message
     if (sendto(sockfd, search_msg.c_str(), search_msg.length(), 0, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) < 0) {
