@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstring>
 #include <memory>
+#include <vector>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
