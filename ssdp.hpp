@@ -61,9 +61,9 @@ int discover(std::string search_target) {
     }
 
     // Receive responses
-    char buffer[1024];
+    std::vector<char> buffer(1024);
     while (true) {
-        int bytes_received = recv(sockfd, buffer, sizeof(buffer), 0);
+        int bytes_received = recv(sockfd, buffer.data(), buffer.size(), 0);
         if (bytes_received < 0) {
             std::cerr << "Error receiving response" << std::endl;
             break;
@@ -72,8 +72,9 @@ int discover(std::string search_target) {
             std::cout << "No more responses" << std::endl;
             break;
         }
-        buffer[bytes_received] = '\0';
-        std::cout << "Received response: " << buffer << std::endl;
+        buffer.resize(bytes_received);
+        buffer.push_back('\0'); // Add null terminator to treat buffer as C-string
+        std::cout << "Received response: " << buffer.data() << std::endl;
     }
 
     // Close socket
