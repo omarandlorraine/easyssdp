@@ -15,5 +15,5 @@ clang-tidy-fix: compile_commands.json
 	clang-tidy --checks=-\*,modernize-*,readability-*,misc-const-correctness $(SRCS) $(HDRS) --p=c++17 --fix
 
 format:
-	clang-format -style=WebKit -i $(SRCS)
+	clang-format -style=WebKit -i $(SRCS) $(HDRS)
 

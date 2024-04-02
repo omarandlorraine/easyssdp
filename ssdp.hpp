@@ -1,61 +1,68 @@
-#include <iostream>
-#include <cstring>
-#include <memory>
-#include <vector>
-#include <optional>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
-#include <unistd.h>
+#include <cstring>
+#include <iostream>
+#include <memory>
+#include <netinet/in.h>
+#include <optional>
 #include <sstream>
+#include <sys/socket.h>
+#include <unistd.h>
+#include <vector>
 
 namespace ssdp {
 
 constexpr int ssdp_port = 1900;
-constexpr const char * ssdp_mcast_addr = "239.255.255.250";
+constexpr const char* ssdp_mcast_addr = "239.255.255.250";
 constexpr int ssdp_mcast_port = 1900;
 
-auto search_target_all() -> std::string {
-	return "ssdp:all";
+auto search_target_all() -> std::string
+{
+    return "ssdp:all";
 }
 
-auto search_target_uuid(const char * const uuid) -> std::string {
-	std::string st = "uuid:";
-	st += uuid;
-	return st;
+auto search_target_uuid(const char* const uuid) -> std::string
+{
+    std::string st = "uuid:";
+    st += uuid;
+    return st;
 }
 
-auto get_field(const std::string result, const std::string prefix) -> std::optional<std::string> {
-	std::istringstream iss(result);
-	std::string line;
+auto get_field(const std::string result, const std::string prefix) -> std::optional<std::string>
+{
+    std::istringstream iss(result);
+    std::string line;
 
-	while (std::getline(iss, line)) {
-		if(line.compare(0, prefix.length(), prefix) == 0) {
-			std::string rest = line.substr(prefix.length());
-			std::size_t start = prefix.length();
-			std::size_t end = line.find_last_not_of(" \t\n\r\f\v");
+    while (std::getline(iss, line)) {
+        if (line.compare(0, prefix.length(), prefix) == 0) {
+            std::string rest = line.substr(prefix.length());
+            std::size_t start = prefix.length();
+            std::size_t end = line.find_last_not_of(" \t\n\r\f\v");
 
-			if (end != std::string::npos) {
-				return line.substr(prefix.length(), end - start + 1);
-			}
-		}
-	}
-	return {};
+            if (end != std::string::npos) {
+                return line.substr(prefix.length(), end - start + 1);
+            }
+        }
+    }
+    return {};
 }
 
-auto get_usn(const std::string result) {
-	return get_field(result, "USN: ");
+auto get_usn(const std::string result)
+{
+    return get_field(result, "USN: ");
 }
 
-auto get_search_target(const std::string result) {
-	return get_field(result, "ST: ");
+auto get_search_target(const std::string result)
+{
+    return get_field(result, "ST: ");
 }
 
-auto get_location(const std::string result) {
-	return get_field(result, "LOCATION: ");
+auto get_location(const std::string result)
+{
+    return get_field(result, "LOCATION: ");
 }
 
-auto discover(std::string search_target, void (&callback)(std::string)) -> int {
+auto discover(std::string search_target, void (&callback)(std::string)) -> int
+{
     // Create a UDP socket
     int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
     if (sockfd < 0) {
@@ -78,12 +85,11 @@ auto discover(std::string search_target, void (&callback)(std::string)) -> int {
     addr.sin_port = htons(ssdp_mcast_port);
     addr.sin_addr.s_addr = inet_addr(ssdp_mcast_addr);
 
-    std::string search_msg =
-	"M-SEARCH * HTTP/1.1\r\n"
-	"Host: 239.255.255.250:1900\r\n"
-	"Man: \"ssdp:discover\"\r\n"
-	"MX: 2\r\n"
-	"ST: ";
+    std::string search_msg = "M-SEARCH * HTTP/1.1\r\n"
+                             "Host: 239.255.255.250:1900\r\n"
+                             "Man: \"ssdp:discover\"\r\n"
+                             "MX: 2\r\n"
+                             "ST: ";
     search_msg += search_target;
     search_msg += "\r\n\r\n";
 
@@ -108,9 +114,8 @@ auto discover(std::string search_target, void (&callback)(std::string)) -> int {
         }
         buffer.resize(bytes_received);
         buffer.push_back('\0'); // Add null terminator to treat buffer as C-string
-	std::string response(buffer.data(), bytes_received);
-	callback(std::move(response));
-        std::cout << "Received response: " << buffer.data() << std::endl;
+        std::string response(buffer.data(), bytes_received);
+        callback(std::move(response));
     }
 
     // Close socket
