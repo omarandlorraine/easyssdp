@@ -54,7 +54,7 @@ int discover(std::string search_target) {
 
 
     // Send SSDP search message
-    if (sendto(sockfd, &search_msg, search_msg.length(), 0, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) < 0) {
+    if (sendto(sockfd, search_msg.c_str(), search_msg.length(), 0, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) < 0) {
         std::cerr << "Error sending SSDP search message" << std::endl;
         close(sockfd);
         return 1;
