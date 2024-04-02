@@ -1,7 +1,7 @@
 #include "ssdp.hpp"
 
 void print_them_out(std::string result) {
-	std::cout << result << std::endl;
+	std::cout << ssdp::get_location(result).value_or("nowhere!") << std::endl;
 }
 
 auto main(int argc, char* argv[]) -> int {

@@ -2,10 +2,12 @@
 #include <cstring>
 #include <memory>
 #include <vector>
+#include <optional>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <sstream>
 
 namespace ssdp {
 
@@ -21,6 +23,36 @@ auto search_target_uuid(const char * const uuid) -> std::string {
 	std::string st = "uuid:";
 	st += uuid;
 	return st;
+}
+
+auto get_field(const std::string result, const std::string prefix) -> std::optional<std::string> {
+	std::istringstream iss(result);
+	std::string line;
+
+	while (std::getline(iss, line)) {
+		if(line.compare(0, prefix.length(), prefix) == 0) {
+			std::string rest = line.substr(prefix.length());
+			std::size_t start = prefix.length();
+			std::size_t end = line.find_last_not_of(" \t\n\r\f\v");
+
+			if (end != std::string::npos) {
+				return line.substr(prefix.length(), end - start + 1);
+			}
+		}
+	}
+	return {};
+}
+
+auto get_usn(const std::string result) {
+	return get_field(result, "USN: ");
+}
+
+auto get_search_target(const std::string result) {
+	return get_field(result, "ST: ");
+}
+
+auto get_location(const std::string result) {
+	return get_field(result, "LOCATION: ");
 }
 
 auto discover(std::string search_target, void (&callback)(std::string)) -> int {
